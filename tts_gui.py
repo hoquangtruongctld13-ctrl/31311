@@ -18,6 +18,12 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, scrolledtext
 import threading
 
+# Default API configuration - can be overridden via environment variables
+API_URL = os.environ.get("TTS_API_URL", "https://play.ht/api/transcribe")
+API_USER_ID = os.environ.get("TTS_USER_ID", "landing_demo_user")
+API_PLATFORM = os.environ.get("TTS_PLATFORM", "landing_demo")
+REQUEST_TIMEOUT = int(os.environ.get("TTS_REQUEST_TIMEOUT", "60"))
+
 
 class TTSGrabberGUI:
     """Main GUI class for TTS-Grabber application."""
@@ -427,20 +433,20 @@ class TTSGrabberGUI:
                     "globalVolume": f"{'+' if self.volume_var.get() >= 0 else ''}{self.volume_var.get()}dB",
                     "chunk": input_text,
                     "narrationStyle": "regular",
-                    "platform": "landing_demo",
+                    "platform": API_PLATFORM,
                     "ssml": input_text,
-                    "userId": "5pe8l4FrdbczcoHOBkUtp0W37Gh2",
+                    "userId": API_USER_ID,
                     "voice": self.selected_voice["value"]
                 }
 
-                req = requests.post("https://play.ht/api/transcribe", data=params, timeout=60)
+                req = requests.post(API_URL, data=params, timeout=REQUEST_TIMEOUT)
 
                 filename = f"_{self.selected_voice['name']}-{int(time.time_ns() / 1000)}-{i+1}.mp3"
                 filepath = os.path.join(self.output_dir.get(), filename)
 
                 try:
                     response = json.loads(req.text)
-                    audio_content = requests.get(response["file"], timeout=60).content
+                    audio_content = requests.get(response["file"], timeout=REQUEST_TIMEOUT).content
                 except (json.JSONDecodeError, KeyError):
                     # Assume we got an audio file directly
                     audio_content = req.content
@@ -455,6 +461,11 @@ class TTSGrabberGUI:
             self.root.after(0, lambda: messagebox.showinfo("Thành công",
                 f"Đã tạo {total_chunks} file audio!"))
 
+        except requests.exceptions.Timeout as e:
+            self._update_status("Lỗi: Hết thời gian chờ kết nối")
+            self.root.after(0, lambda: messagebox.showerror("Lỗi",
+                f"Hết thời gian chờ kết nối (timeout {REQUEST_TIMEOUT}s).\n"
+                "Vui lòng kiểm tra kết nối mạng và thử lại."))
         except requests.exceptions.RequestException as e:
             self._update_status(f"Lỗi kết nối: {e}")
             self.root.after(0, lambda: messagebox.showerror("Lỗi", f"Lỗi kết nối: {e}"))
@@ -507,13 +518,13 @@ class TTSGrabberGUI:
                     "globalVolume": f"{'+' if self.volume_var.get() >= 0 else ''}{self.volume_var.get()}dB",
                     "chunk": input_text,
                     "narrationStyle": "regular",
-                    "platform": "landing_demo",
+                    "platform": API_PLATFORM,
                     "ssml": input_text,
-                    "userId": "5pe8l4FrdbczcoHOBkUtp0W37Gh2",
+                    "userId": API_USER_ID,
                     "voice": self.selected_voice["value"]
                 }
 
-                req = requests.post("https://play.ht/api/transcribe", data=params, timeout=60)
+                req = requests.post(API_URL, data=params, timeout=REQUEST_TIMEOUT)
 
                 # Use segment index in filename for ordering
                 filename = f"srt_{segment['index']:04d}_{self.selected_voice['name']}.mp3"
@@ -521,7 +532,7 @@ class TTSGrabberGUI:
 
                 try:
                     response = json.loads(req.text)
-                    audio_content = requests.get(response["file"], timeout=60).content
+                    audio_content = requests.get(response["file"], timeout=REQUEST_TIMEOUT).content
                 except (json.JSONDecodeError, KeyError):
                     # Assume we got an audio file directly
                     audio_content = req.content
@@ -536,6 +547,11 @@ class TTSGrabberGUI:
             self.root.after(0, lambda: messagebox.showinfo("Thành công",
                 f"Đã tạo {total_segments} file audio từ SRT!"))
 
+        except requests.exceptions.Timeout as e:
+            self._update_status("Lỗi: Hết thời gian chờ kết nối")
+            self.root.after(0, lambda: messagebox.showerror("Lỗi",
+                f"Hết thời gian chờ kết nối (timeout {REQUEST_TIMEOUT}s).\n"
+                "Vui lòng kiểm tra kết nối mạng và thử lại."))
         except requests.exceptions.RequestException as e:
             self._update_status(f"Lỗi kết nối: {e}")
             self.root.after(0, lambda: messagebox.showerror("Lỗi", f"Lỗi kết nối: {e}"))
