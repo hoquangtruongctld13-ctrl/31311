@@ -1,0 +1,23 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Byte-compiled / optimized / DLL files
+*.so
+
+# Generated audio files
+*.mp3
+
+# Last used voice cache
+lastused.json
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
