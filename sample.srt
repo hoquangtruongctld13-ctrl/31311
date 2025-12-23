@@ -1,0 +1,19 @@
+1
+00:00:01,000 --> 00:00:04,000
+Xin chào, đây là ví dụ về file SRT.
+
+2
+00:00:05,000 --> 00:00:09,000
+File SRT được sử dụng để tạo phụ đề cho video.
+
+3
+00:00:10,000 --> 00:00:14,000
+Bạn có thể import file này vào TTS-Grabber GUI.
+
+4
+00:00:15,000 --> 00:00:19,000
+Mỗi đoạn sẽ được chuyển thành một file audio riêng.
+
+5
+00:00:20,000 --> 00:00:24,000
+Điều này giúp bạn dễ dàng đồng bộ audio với video.
